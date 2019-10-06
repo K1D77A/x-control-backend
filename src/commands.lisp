@@ -1,6 +1,7 @@
 (in-package #:x-control)
 ;;;;THis file handles all the commands that are received from the android device
 
+
 (defun keyword-from-json (json)
   (first (first json)))
 

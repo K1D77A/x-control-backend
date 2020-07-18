@@ -4,13 +4,6 @@
 ;;;;its pretty simple, there is a tcp in con, tcp out con and a udp in con all handled
 ;;;;in seperate threads, this bad boi sets the whole thing rolling.
 
-
-(defparameter *udp-port* nil);;23455 temp port
-(defparameter *tcp-port-input* 60000);;60000 is default
-(defparameter *tcp-port-output* nil);;23457
-(defparameter *IP* "192.168.200.9")
-(defparameter *debug-output* t)
-
 (defun get-interface-ips ()
   (ip-interfaces:get-ip-interfaces))
 
@@ -19,6 +12,7 @@
    (make-instance 'client :ip ip :tcp-port tcp-port :udp-port udp-port :debug-program debug)))
 
 (defmethod shutdown-client ((client client))
+  "Attempts to close all the sockets associated with CLIENT."
   (handler-case (when (remote-connection client)
                   (usocket:socket-close (tcp-server client)))
     (unbound-slot (c)
@@ -47,6 +41,9 @@
          start-master-loop))
 
 (defmethod wait-for-connection-from-phone ((client client))
+  "Given a CLIENT attempts to start the connection with the android device. Once connected it will
+loop and execute the correct commands based on the information received both on a udp and tcp port
+within client."
   (handler-case 
       (unwind-protect (progn
                         (set-tcp-listening client)
@@ -59,24 +56,15 @@
                         (get-and-set-ips client)
                         (start-master-loop client))
         (shutdown-client client))
-    (USOCKET:ADDRESS-IN-USE-ERROR (c)
-      (shutdown-client client)
-      (values client c))
-    (SB-INT:SIMPLE-STREAM-ERROR (c)
-      (shutdown-client client)
-      (values client c))
-    (END-OF-FILE (c)
-      (shutdown-client client)
-      (values client c))
-    (condition (c)
-      (shutdown-client client)
-      (values client c))
     (unknown-error ()
       (shutdown-client client)
       (format t "~&Unknown error. Restarting~%")
       (make-client (ip client)
                    :tcp-port (tcp-port client) :udp-port (udp-port client)
-                   :debug (debug-program client)))))
+                   :debug (debug-program client)))
+    (condition (c)
+      (shutdown-client client)
+      (values client c))))
 
 (defmethod start-master-loop ((client client))
   (let ((remote (remote-stream client))        

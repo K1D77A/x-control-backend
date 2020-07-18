@@ -7,17 +7,17 @@
   :version "1"
   :license "zlib"
   :depends-on (#:clx
-	       #:usocket
-	       #:cl-json
-	       #:safe-queue
-	       #:bordeaux-threads)
-	      ; #:cl-configurator)
+               #:usocket
+               #:cl-json
+               #:safe-queue
+               #:bordeaux-threads)
+                                        ; #:cl-configurator)
   :pathname "src"
   :serial t
   :components ((:file "package")
-	       (:file "configuration")
-	       (:file "x-control") 
-	       (:file "commands")
-	       (:file "networking/tcp-handler")
-	       (:file "networking/udp-handler")
-	       (:file "server")))
+               (:file "classes")
+               (:file "x-control") 
+               (:file "commands")
+               (:file "networking/tcp-handler")
+               (:file "networking/udp-handler")
+               (:file "server")))

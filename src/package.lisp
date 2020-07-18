@@ -1,4 +1,4 @@
 (defpackage #:x-control
   (:use #:usocket #:CL)
-  (:export "WAIT-TO-PLAY" "SETUP-X-CONTROL"))
+  (:export "make-client" "get-interface-ips"))
 (in-package #:x-control)

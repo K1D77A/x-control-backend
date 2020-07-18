@@ -9,6 +9,7 @@
   :depends-on (#:clx
                #:usocket
                #:cl-json
+               #:ip-interfaces
                #:safe-queue
                #:bordeaux-threads)
                                         ; #:cl-configurator)

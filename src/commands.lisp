@@ -19,7 +19,7 @@
 (defun execute-json (client json &optional (debug nil))
   (let ((keyword (keyword-from-json json)))
     (when debug
-      (format *standard-output* "keyword: ~S~%JSON: ~S~%" keyword json))
+      (format *standard-output* "json: ~S~%" json))
     (handler-case (funcall (key->fun keyword) client (rest (first json)))
       (keyword-not-found ()
         (funcall (key->fun :unknown) client (rest (first json)))))))

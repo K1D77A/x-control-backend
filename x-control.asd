@@ -10,6 +10,7 @@
                #:usocket
                #:cl-json
                #:ip-interfaces
+               #:mcclim
                #:safe-queue
                #:bordeaux-threads)
                                         ; #:cl-configurator)
@@ -21,4 +22,5 @@
                (:file "commands")
                (:file "networking/tcp-handler")
                (:file "networking/udp-handler")
-               (:file "server")))
+               (:file "server")
+               (:file "gui/mcclim")))

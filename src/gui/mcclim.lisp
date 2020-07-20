@@ -34,13 +34,16 @@ hierarchy of panes and gadgets (gadgets are a special kind of pane)
 |#
 
 (define-application-frame my-first-clim-app ()
-  ()
+  ((init-number :initform 1
+                :accessor init-number
+                :type number))
   (:pointer-documentation t)
   (:panes
    (app :application 
         :height 200 
         :width 600
-        :display-time nil)
+        ;; :display-time nil
+        :display-function 'display-app)
    (interactor :interactor
                :height 200 
                :width 600))
@@ -48,9 +51,20 @@ hierarchy of panes and gadgets (gadgets are a special kind of pane)
    (default (vertically ()
               app interactor))))
 
+(defun display-app (frame pane)
+  (let ((n (init-number frame)))
+    (format pane "~A is ~A~%"  n (if (oddp n)
+                                     "odd"
+                                     "even"))
+    (incf (init-number frame))))
 
 (define-my-first-clim-app-command (com-quit :name t) ()
   (frame-exit *application-frame*))
+
+(define-my-first-clim-app-command (com-edit-init-n :name t) ((number 'number))
+  (setf (init-number *application-frame*) number)
+  (format t "~&new val is: ~d~%" number))
+
 (define-my-first-clim-app-command (com-parity :name t) ((number 'integer))
   (format t "~A is ~A~%" number (if (oddp number)
                                     "odd"

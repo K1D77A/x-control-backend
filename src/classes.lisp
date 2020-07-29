@@ -1,7 +1,10 @@
 (in-package #:x-control)
 
 (defclass client ()
-  ((udp-port 
+  ((runningp
+    :accessor runningp
+    :initform nil)
+   (udp-port 
     :accessor udp-port
     :initarg :udp-port
     :type integer)
@@ -35,7 +38,13 @@
    (debug-program
     :accessor debug-program
     :initarg :debug-program
-    :initform nil)))
+    :initform nil)
+   (output-stream
+    :accessor output-stream
+    :initform (make-string-output-stream))
+   (output-stream-lock
+    :accessor output-stream-lock
+    :initform (bt:make-lock))))
 
 (define-condition keyword-not-found (condition)
   ((expected-keyword

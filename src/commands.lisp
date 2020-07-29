@@ -19,14 +19,14 @@
 (defun execute-json (client json &optional (debug nil))
   (let ((keyword (keyword-from-json json)))
     (when debug
-      (format *standard-output* "json: ~S~%" json))
+      (client-format client "json: ~S~%" json))
     (handler-case (funcall (key->fun keyword) client (rest (first json)))
       (keyword-not-found ()
         (funcall (key->fun :unknown) client (rest (first json)))))))
 
 (defun handle-unknown (client args)
-  (declare (ignore client args))
-  (print "unknown key"))
+  (declare (ignore args))
+  (client-format client "unknown key~%"))
 
 (fun->key :unknown 'handle-unknown)
 
@@ -42,8 +42,8 @@ the device for sending packets and sets the values of *udp-port* *tcp-port-outpu
 
 (defun handle-connected (client args)
   "Prints out the valid connection"
-  (declare (ignore client args))
-  (format *standard-output* "~%connection made~%"))
+  (declare (ignore args))
+  (client-format client "connection made~%"))
 
 (fun->key :connected 'handle-connected)
 

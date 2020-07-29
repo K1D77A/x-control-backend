@@ -13,22 +13,14 @@
 
 (defmethod shutdown-client ((client client))
   "Attempts to close all the sockets associated with CLIENT."
-  (handler-case (when (remote-connection client)
-                  (usocket:socket-close (tcp-server client)))
-    (unbound-slot (c)
-      (values c client)))
-  (handler-case (when (remote-connection client)
-                  (usocket:socket-close (remote-connection client)))
-    (unbound-slot (c)
-      (values c client)))
-  (handler-case (when (output-tcp-connection client)
-                  (usocket:socket-close (output-tcp-connection client)))
-    (unbound-slot (c)
-      (values c client)))
-  (handler-case (when (input-udp-connection client)
-                  (usocket:socket-close (input-udp-connection client)))
-    (unbound-slot (c)
-      (values c client))))
+  (when (runningp client)
+    (mapcar (lambda (slot)
+              (when (slot-boundp client slot)
+                (client-format client "Shutting down ~A~%" slot)
+                (usocket:socket-close slot)))
+            '(remote-connection output-tcp-connection input-udp-connection))
+    (client-format client "Shutdown complete!~%")
+    (setf (runningp client) t)))
 
 (defun trace-all ()
   (trace set-tcp-listening
@@ -39,6 +31,12 @@
          set-input-udp-connection
          set-output-tcp-connection
          start-master-loop))
+
+(defmethod client-format ((client client) control-string &rest format-args)
+  (bt:with-lock-held ((output-stream-lock client))
+    (apply #'format t control-string format-args)
+    (apply #'format (output-stream client) control-string format-args)
+    (finish-output (output-stream client))))
 
 (defmethod wait-for-connection-from-phone ((client client))
   "Given a CLIENT attempts to start the connection with the android device. Once connected it will
@@ -58,7 +56,7 @@ within client."
         (shutdown-client client))
     (unknown-error ()
       (shutdown-client client)
-      (format t "~&Unknown error. Restarting~%")
+      (client-format client "~&Unknown error. Restarting~%")
       (make-client (ip client)
                    :tcp-port (tcp-port client) :udp-port (udp-port client)
                    :debug (debug-program client)))
